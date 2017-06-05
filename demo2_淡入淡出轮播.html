@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		*{margin: 0;padding: 0;}
+		#container {width: 790px; height: 340px; position: relative; margin: 50px auto;}
+		li {list-style: none; width: 790px;height: 340px;position: absolute; top:0; left: 0; display: none;}
+		#pages {
+			height:30px; width:790px;background: black; position: absolute; bottom: 0;
+		}
+		#pages div {
+			width: 20px;height: 20px;background: white;float:left; margin:5px; border-radius: 10px;
+		}
+		#pages div.current {
+			background: red;
+		}
+		#prev, #next {
+			width: 50px;
+			height: 100px;
+			position: absolute;
+			top:0;
+			bottom: 0;
+			margin:auto;
+			background: black;
+			color:white;
+			text-align: center;
+			line-height: 100px;
+			font-size:50px;
+			cursor: default;
+		}
+		#next {
+			right:0;
+		}
+	</style>
+</head>
+<body>
+	<div id="container">
+		<ul>
+			<li style="display: block;"><img src="images/001.jpg"></li>
+			<li><img src="images/002.jpg"></li>
+			<li><img src="images/003.jpg"></li>
+			<li><img src="images/004.jpg"></li>
+			<li><img src="images/005.jpg"></li>
+		</ul>
+		<div id="pages"></div>
+		<div id="prev">&lt;</div>
+		<div id="next">&gt;</div>
+	</div>
+
+	<script type="text/javascript" src="lib/jquery/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			var $imgs = $("li"),
+				len = $imgs.length,
+				currentIndex = 0,
+				nextIndex = 1,
+				timer = null,
+				html = "";
+			// 鼠标移入移出div#container时的效果
+			$("#container").hover(function(){
+				// mouseenter
+				clearInterval(timer);
+			},function(){
+				// mouseleave
+				timer = setInterval(move, 3000);
+			}).trigger("mouseleave");
+
+			// 创建小圆点DOM结构的字符串
+			for (var i = 0; i < len; i++) {
+				html += "<div></div>";
+			}
+			// 添加小圆点，第一个小圆点默认红色背景
+			$(html).appendTo("#pages").eq(0).addClass("current");
+			// 绑定鼠标移入小圆点的事件
+			$("#pages").on("mouseover","div", function(){
+				if (currentIndex == $(this).index())
+					return;
+				nextIndex = $(this).index();
+				move();
+			});
+			// 向上
+			$("#prev").click(function(){
+				nextIndex = currentIndex - 1;
+				if (nextIndex < 0)
+					nextIndex = len - 1;
+				move();
+			});
+			// 向下
+			$("#next").click(move);
+
+			function move(){
+				$imgs.eq(currentIndex).fadeOut().end()
+					 .eq(nextIndex).fadeIn();
+				// 小圆点背景
+				$("#pages div").eq(currentIndex).removeClass("current").end().eq(nextIndex).addClass("current");
+
+				currentIndex = nextIndex;
+				nextIndex++;
+				if (nextIndex >= len)
+					nextIndex = 0;
+			}
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		* {margin: 0;padding: 0;}
+		#header {width: 900px;height: 2000px;background: #ccc; margin:0 auto;}
+		#footer {width: 900px;height: 500px;background: #ccc; margin:0 auto;}
+		.floor {width: 900px;height: 600px;margin: 0 auto; font-size:40px; font-weight: bold; color:white;}
+		#menu {width: 50px; position: fixed; left:50px; bottom: 100px; display: none;}
+		li {list-style: none; width: 50px; height: 30px; line-height: 30px; text-align: center; border: 1px solid; cursor: default; position: relative;}
+		li span {display: none; background: red; width:50px; height:30px; position: absolute; top:0; left: 0;}
+	</style>
+</head>
+<body>
+	<div id="header">
+		头部
+	</div>
+	<div id="main">
+		<div class="floor" style="background:#f00;">家电</div>
+		<div class="floor" style="background:#0f0;">数码</div>
+		<div class="floor" style="background:#00f;">运动</div>
+		<div class="floor" style="background:#ff0;">家居</div>
+		<div class="floor" style="background:#0ff;">图书</div>
+	</div>
+	<div id="footer">
+		尾部
+	</div>
+
+	<ul id="menu">
+		<li>1L<span style="display: block;">家电</span></li>
+		<li>2L<span>数码</span></li>
+		<li>3L<span>运动</span></li>
+		<li>4L<span>家居</span></li>
+		<li>5L<span>图书</span></li>
+		<li>Top</li>
+	</ul>
+
+	<script type="text/javascript" src="lib/jquery/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			
+			// var headerHeight = $("#header").outerHeight();
+			var headerHeight = $(".floor:eq(0)").offset().top, // 头部布局结构的高度
+				winHeight = $(window).height(), // 窗口高度
+				isMoving = false, // 标记是否是由于点击导航发生的滚动行为，true:点击触发  false:非点击
+				currentFloorIndex = 0; // 当前显示楼层的索引
+
+			// 绑定页面滚动的事件
+			$(window).on("scroll", function(){
+				if (!isMoving) {
+					var _scrollTop = $(window).scrollTop(); // 获取页面滚动高度
+					// 判断滚动距离
+					if (_scrollTop >= headerHeight - winHeight / 2) {
+						$("#menu").stop().fadeIn();
+					} else {
+						$("#menu").stop().fadeOut();
+					}
+
+					// 遍历每个楼层
+					$(".floor").each(function(index, element){
+						// 求当前遍历到楼层在文档中距离文档顶部的绝对定位
+						var _top = $(element).offset().top;
+						// 与滚动距离判断
+						if (_scrollTop >= _top - winHeight / 2) {
+							$("#menu li").eq(index).children("span").show().end()
+										 .siblings().children("span").hide();
+							currentFloorIndex = index; // 标记当前正显示楼层的索引
+						}
+					});
+				}
+			});
+
+			// 点击导航楼层跳转
+			$("#menu li:not(:last)").click(function(){
+				var floorIndex = $(this).index(),
+					_top = $(".floor").eq(floorIndex).offset().top; // 计算应该页面滚动的高度
+				isMoving = true;
+
+				$(this).children("span").show().end()
+					   .siblings().children("span").hide();
+
+				// 实现页面滚动效果
+				$("html,body").stop().animate({scrollTop: _top}, 1000, function(){
+					isMoving = false;
+				});
+			}).hover(function(){
+				$(this).children("span").show();
+			}, function(){
+				if ($(this).index() !== currentFloorIndex)
+					$(this).children("span").hide();
+			});
+
+			$("#menu li:last").click(function(){
+				$(window).scrollTop(0);
+				// $("html,body").animate({scrollTop:0}, 1000);
+			});
+		});
+	</script>
+</body>
+</html>

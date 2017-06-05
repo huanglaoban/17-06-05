@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+		*{margin: 0;padding: 0;}
+		#container {width: 790px; height: 340px; position: relative; margin: 50px auto; overflow: hidden;}
+		ul {position: absolute; top:0; left: 0;}
+		li {list-style: none; width: 790px;height: 340px; float: left;}
+
+		#pages {
+			height:30px; width:790px;background: black; position: absolute; bottom: 0;
+		}
+		#pages div {
+			width: 20px;height: 20px;background: white;float:left; margin:5px; border-radius: 10px;
+		}
+		#pages div.current {
+			background: red;
+		}
+		#prev, #next {
+			width: 50px;
+			height: 100px;
+			position: absolute;
+			top:0;
+			bottom: 0;
+			margin:auto;
+			background: black;
+			color:white;
+			text-align: center;
+			line-height: 100px;
+			font-size:50px;
+			cursor: default;
+		}
+		#next {
+			right:0;
+		}
+	</style>
+</head>
+<body>
+	<div id="container">
+		<ul>
+			<li><img src="images/001.jpg"></li>
+			<li><img src="images/002.jpg"></li>
+			<li><img src="images/003.jpg"></li><!-- 
+			<li><img src="images/004.jpg"></li>
+			<li><img src="images/005.jpg"></li> -->
+		</ul>
+		<div id="pages"></div>
+		<div id="prev">&lt;</div>
+		<div id="next">&gt;</div>
+	</div>
+
+	<script type="text/javascript" src="lib/jquery/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript">
+		$(function(){
+
+			var $imgs = $("li"),
+				len = $imgs.length,
+				imgWidth = $imgs.outerWidth(),
+				currentIndex = 1,
+				nextIndex = 2,
+				html = "",
+				timer = null,
+				isMoving = false; // 标记是否正在轮播切换
+
+			// 将第一张图片与最后一张图片克隆
+			var first = $imgs.eq(0).clone(true),
+				last = $imgs.eq(len - 1).clone(true);
+			// 添加到开头或结尾
+			$("#container ul").append(first).prepend(last);
+			// len修改
+			len += 2;
+			// 设置 ul 宽度, 默认显示第一张图片内容
+			$("#container ul").css({
+				width : len * imgWidth,
+				left : -imgWidth
+			});
+
+			// 小圆点
+			for (var i = 0; i < len - 2; i++) {
+				html += "<div></div>";
+			}
+			$(html).appendTo("#pages").eq(0).addClass("current");
+			// 点击小圆点切换显示图片
+			$("#pages div").click(function(){
+				nextIndex = $(this).index() + 1;
+				move();
+			});
+
+			
+			$("#prev").click(function(){
+				if (!isMoving){
+					nextIndex = currentIndex - 1;
+					move();
+				}
+			});
+			// 向下
+			$("#next").click(function(){
+				if (!isMoving) {
+					move();
+				}
+			});
+
+			$("#container").hover(function(){
+				clearInterval(timer)
+			}, function(){
+				// 自动轮播
+				timer = setInterval(move, 3000);
+			}).trigger("mouseleave");
+
+			function move() {
+				// 标记开始实现轮播
+				isMoving = true;
+
+				var _left = -1 * imgWidth * nextIndex;
+				// 定位
+				$("#container ul").stop().animate({left: _left}, 1000, function(){
+					// 标记轮播结束
+					isMoving = false;
+					if (nextIndex >= len) { // 向后
+						$("#container ul").css({
+							left : -imgWidth
+						});
+						currentIndex = 1;
+						nextIndex = 2;
+					} else if (currentIndex <= 0) { // 向前
+						$("#container ul").css({
+							left : -1 * imgWidth * (len - 2)
+						});
+						currentIndex = len - 2;
+						nextIndex = len - 1;
+					}
+				});
+				/* 切换小圆点样式 */
+				var cirleIndex = (nextIndex == len - 1) ? 0 : (nextIndex - 1);
+				$("#pages div").eq(cirleIndex).addClass("current").siblings().removeClass("current");
+
+				currentIndex = nextIndex;
+				nextIndex++;
+			}
+		});
+	</script>
+</body>
+</html>
