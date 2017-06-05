@@ -1,2 +1,3 @@
-animate()
+﻿animate()
 	-- 运动队列
+djdsksdklsjksjkskskskks
